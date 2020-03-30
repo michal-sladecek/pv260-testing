@@ -1,36 +1,22 @@
-package pv260.unittesting;
+package pv260.customeranalysis;
 
 import static com.googlecode.catchexception.CatchException.catchException;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
+
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InOrder;
-import static org.mockito.Matchers.any;
+import pv260.customeranalysis.entities.Product;
+import pv260.customeranalysis.exceptions.CantUnderstandException;
+import pv260.customeranalysis.exceptions.GeneralException;
+import pv260.customeranalysis.interfaces.AnalyticalEngine;
+import pv260.customeranalysis.interfaces.ErrorHandler;
+import pv260.customeranalysis.interfaces.NewsList;
+import pv260.customeranalysis.interfaces.Storage;
+
 import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import pv260.unittesting.CustomerAnalysis.CantUnderstandException;
-import pv260.unittesting.CustomerAnalysis.Customer;
-import pv260.unittesting.CustomerAnalysis.ErrorHandler;
-import pv260.unittesting.CustomerAnalysis.GeneralException;
-import pv260.unittesting.CustomerAnalysis.NewsList;
-import pv260.unittesting.CustomerAnalysis.Offer;
-import pv260.unittesting.CustomerAnalysis.Product;
-import pv260.unittesting.CustomerAnalysis.Storage;
-import pv260.unittesting.CustomerAnalysis.AnalyticalEngine;
+
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class CustomerAnalysisTest {
 
@@ -45,6 +31,19 @@ public class CustomerAnalysisTest {
      */
     @Test
     public void testErrorHandlerInvokedWhenEngineThrows() throws GeneralException {
+        Product product = mock(Product.class);
+        AnalyticalEngine failingEngine = mock(AnalyticalEngine.class);
+        when(failingEngine.interesetingCustomers(product)).thenThrow(new CantUnderstandException());
+        ErrorHandler handler = mock(ErrorHandler.class);
+
+        CustomerAnalysis analysis =
+                new CustomerAnalysis(asList(failingEngine),
+                        mock(Storage.class),
+                        mock(NewsList.class),
+                        handler);
+        catchException(() -> analysis.findInterestingCustomers(product));
+        verify(handler).handle(isA(CantUnderstandException.class));
+
 
     }
 
