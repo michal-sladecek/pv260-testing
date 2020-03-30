@@ -20,9 +20,7 @@ import static org.mockito.Mockito.*;
 
 public class CustomerAnalysisTest {
 
-    private static final String FAKE_QUERY = "GIMME_STUFF";
 
-    private static final long FAKE_PROD_ID = 12345;
 
     /**
      * Verify the ErrorHandler is invoked when one of the AnalyticalEngine methods
@@ -31,19 +29,6 @@ public class CustomerAnalysisTest {
      */
     @Test
     public void testErrorHandlerInvokedWhenEngineThrows() throws GeneralException {
-        Product product = mock(Product.class);
-        AnalyticalEngine failingEngine = mock(AnalyticalEngine.class);
-        when(failingEngine.interesetingCustomers(product)).thenThrow(new CantUnderstandException());
-        ErrorHandler handler = mock(ErrorHandler.class);
-
-        CustomerAnalysis analysis =
-                new CustomerAnalysis(asList(failingEngine),
-                        mock(Storage.class),
-                        mock(NewsList.class),
-                        handler);
-        catchException(() -> analysis.findInterestingCustomers(product));
-        verify(handler).handle(isA(CantUnderstandException.class));
-
 
     }
 
