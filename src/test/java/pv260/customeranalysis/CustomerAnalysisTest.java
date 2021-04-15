@@ -5,6 +5,7 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
+import pv260.customeranalysis.entities.Customer;
 import pv260.customeranalysis.entities.Product;
 import pv260.customeranalysis.exceptions.CantUnderstandException;
 import pv260.customeranalysis.exceptions.GeneralException;
@@ -13,6 +14,9 @@ import pv260.customeranalysis.interfaces.ErrorHandler;
 import pv260.customeranalysis.interfaces.NewsList;
 import pv260.customeranalysis.interfaces.Storage;
 
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.isA;
 
 import static org.mockito.Matchers.any;
@@ -77,7 +81,23 @@ public class CustomerAnalysisTest {
      */
     @Test
     public void testNoMoreEnginesTriedAfterOneSucceeds() throws GeneralException {
+        Product product = mock(Product.class);
+        ErrorHandler handler = mock(ErrorHandler.class);
+        AnalyticalEngine engine1 = mock(AnalyticalEngine.class);
+        when(engine1.interesetingCustomers(product)).thenReturn(asList(new Customer(1,"test",2)));
+        AnalyticalEngine engine2 = mock(AnalyticalEngine.class);
+        AnalyticalEngine engine3 = mock(AnalyticalEngine.class);
+        Storage storage = mock(Storage.class);
+        NewsList newsList = mock(NewsList.class);
 
+        CustomerAnalysis analysis = new CustomerAnalysis(asList(engine1, engine2, engine3), storage, newsList, handler);
+        List<Customer> result = analysis.findInterestingCustomers(product);
+        assertEquals("test",result.get(0).getName());
+        assertEquals(2,result.get(0).getCredit());
+        assertEquals(1,result.get(0).getId());
+
+        verify(engine2,never()).interesetingCustomers(product);
+        verify(engine3,never()).interesetingCustomers(product);
     }
 
     /**
