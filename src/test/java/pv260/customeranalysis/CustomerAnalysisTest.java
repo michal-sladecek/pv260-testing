@@ -51,7 +51,23 @@ public class CustomerAnalysisTest {
      */
     @Test
     public void testSubsequentEnginesTriedIfOneFails() throws GeneralException {
+        Product product = mock(Product.class);
+        ErrorHandler handler = mock(ErrorHandler.class);
+        AnalyticalEngine engine1 = mock(AnalyticalEngine.class);
+        AnalyticalEngine engine2 = mock(AnalyticalEngine.class);
+        AnalyticalEngine engine3 = mock(AnalyticalEngine.class);
+        when(engine1.interesetingCustomers(product)).thenThrow(new CantUnderstandException());
+        when(engine2.interesetingCustomers(product)).thenThrow(new CantUnderstandException());
+        when(engine3.interesetingCustomers(product)).thenThrow(new CantUnderstandException());
+        Storage storage = mock(Storage.class);
+        NewsList newsList = mock(NewsList.class);
 
+        CustomerAnalysis analysis = new CustomerAnalysis(asList(engine1, engine2, engine3), storage, newsList, handler);
+
+        catchException(() -> analysis.findInterestingCustomers(product));
+
+        verify(engine2).interesetingCustomers(product);
+        verify(engine3).interesetingCustomers(product);
     }
 
     /**
