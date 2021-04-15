@@ -145,7 +145,27 @@ public class CustomerAnalysisTest {
      */
     @Test
     public void testOfferContainsProductAndCustomer() throws GeneralException {
-      
+        ErrorHandler handler = mock(ErrorHandler.class);
+        Product product = mock(Product.class);
+        Customer customer1 = mock(Customer.class);
+        Customer customer2 = mock(Customer.class);
+        AnalyticalEngine engine = mock(AnalyticalEngine.class);
+        Storage storage = mock(Storage.class);
+        when(storage.find(Product.class, 0)).thenReturn(product);
+        when(engine.interesetingCustomers(product)).thenReturn(asList(customer1,customer2));
+        NewsList newsList = mock(NewsList.class);
+
+        CustomerAnalysis analysis = new CustomerAnalysis(asList(engine),storage, newsList, handler);
+        analysis.prepareOfferForProduct(0);
+
+        ArgumentCaptor<Offer> offerCaptor= ArgumentCaptor.forClass(Offer.class);
+
+        verify(storage,times(2)).persist(offerCaptor.capture());
+        List<Offer> offers = offerCaptor.getAllValues();
+
+        assertEquals(customer1, offers.get(0).getCustomer());
+        assertEquals(customer2, offers.get(1).getCustomer());
+
     }
 
 }
